@@ -1,1 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Plataforma 2D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<div id="startScreen">
+  <img src="assets/annycapa.png" alt="Capa">
+  <button id="startBtn">Iniciar</button>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="inGameMenu">
+  <button id="btnReset">Reset</button>
+  <button id="btnHome">Início</button>
+</div>
+
+<div id="mobileControls">
+  <button id="btnLeft">◀</button>
+  <button id="btnJump">▲</button>
+  <button id="btnRight">▶</button>
+</div>
+
+<div id="gameOverScreen">
+  <h1>Game Over</h1>
+  <button id="restartBtn">Reiniciar</button>
+</div>
+
+<script src="js/input.js"></script>
+<script src="js/player.js"></script>
+<script src="js/platform.js"></script>
+<script src="js/heart.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
