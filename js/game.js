@@ -29,7 +29,19 @@ class Game {
   generatePlatforms() {
     let y = this.canvas.height - 60;
     const padding = 40;
+    const platforms = [
+  new Platform(
+    canvas.width / 2 - 40,
+    canvas.height - 80,
+    80,
+    16,
+    false,
+    true // ← esta é a plataforma fixa
+  ),
 
+  new Platform(300, 300),
+  new Platform(500, 220),
+];
     for (let i = 0; i < this.totalPlatforms; i++) {
       const x =
         padding +
