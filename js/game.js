@@ -29,20 +29,23 @@ class Game {
   generatePlatforms() {
     let y = this.canvas.height - 60;
     const padding = 40;
-    const platforms = [
-  new Platform(
-    canvas.width / 2 - 40,
-    canvas.height - 80,
-    80,
-    16,
-    false,
-    true // ← esta é a plataforma fixa
-  ),
 
-  new Platform(300, 300),
-  new Platform(500, 220),
-];
-    for (let i = 0; i < this.totalPlatforms; i++) {
+    // 🔒 PLATAFORMA INICIAL FIXA
+    this.platforms.push(
+      new Platform(
+        this.canvas.width / 2 - 40,
+        this.canvas.height - 80,
+        80,
+        16,
+        false,
+        true // isBase
+      )
+    );
+
+    y -= this.platformGap;
+
+    // Plataformas normais
+    for (let i = 1; i < this.totalPlatforms; i++) {
       const x =
         padding +
         Math.random() * (this.canvas.width - padding * 2 - 90);
@@ -90,6 +93,14 @@ class Game {
   update() {
     this.player.onGround = false;
 
+    // 🔒 Garante que a plataforma base segure o player
+    this.platforms.forEach(p => {
+      if (p.isBase) {
+        p.anchorPlayer(this.player);
+      }
+    });
+
+    // Colisão com plataformas
     this.platforms.forEach(p => {
       if (
         this.player.x < p.x + p.width &&
@@ -105,6 +116,7 @@ class Game {
       }
     });
 
+    // Coleta de corações
     this.hearts.forEach(h => {
       if (h.checkCollision(this.player)) {
         this.score++;
