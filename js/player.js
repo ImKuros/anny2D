@@ -72,17 +72,5 @@ class Player {
       ctx.scale(-1, 1);
       ctx.translate(-(this.x + this.width / 2), 0);
     }
-
-    // 🧍 Desenho do personagem (placeholder)
-    ctx.fillStyle = "#ffccaa";
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-
-    ctx.restore();
-
-    /* 🔍 DEBUG (opcional): desenhar hitbox
-    const b = this.bounds;
-    ctx.strokeStyle = "red";
-    ctx.strokeRect(b.x, b.y, b.width, b.height);
-    */
   }
 }
