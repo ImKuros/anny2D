@@ -1,79 +1,88 @@
 class Player {
   constructor(x, y) {
+    // Posição real do sprite
     this.x = x;
     this.y = y;
 
-    this.width = 42;
-    this.height = 42;
+    // Tamanho do sprite
+    this.width = 40;
+    this.height = 48;
 
-    this.vx = 0;
+    // 🔧 HITBOX (menor que o sprite)
+    this.hitbox = {
+      offsetX: 8,
+      offsetY: 6,
+      width: 24,
+      height: 42
+    };
+
+    // Física
     this.vy = 0;
-
     this.speed = 3.5;
-    this.jumpForce = 13;
+    this.jumpForce = -12;
     this.gravity = 0.6;
-
     this.onGround = false;
-    this.canDoubleJump = true;
 
-    this.spriteIdle = new Image();
-    this.spriteWalk = new Image();
-    this.spriteJump = new Image();
+    // Direção do personagem
+    this.direction = "right"; // right | left
+  }
 
-    this.spriteIdle.src = "assets/anny.png";
-    this.spriteWalk.src = "assets/anny2.png";
-    this.spriteJump.src = "assets/anny3.png";
-
-    this.currentSprite = this.spriteIdle;
+  // Retorna a hitbox real no mundo
+  get bounds() {
+    return {
+      x: this.x + this.hitbox.offsetX,
+      y: this.y + this.hitbox.offsetY,
+      width: this.hitbox.width,
+      height: this.hitbox.height
+    };
   }
 
   update(input, canvas) {
-    // Movimento horizontal
-    this.vx = 0;
-    if (input.left) this.vx = -this.speed;
-    if (input.right) this.vx = this.speed;
-
-    // Pulo
-    if (input.jump) {
-      if (this.onGround) {
-        this.vy = -this.jumpForce;
-        this.onGround = false;
-        this.canDoubleJump = true;
-      } else if (this.canDoubleJump) {
-        this.vy = -this.jumpForce;
-        this.canDoubleJump = false;
-      }
-      input.jump = false;
+    /* ================= MOVIMENTO HORIZONTAL ================= */
+    if (input.left) {
+      this.x -= this.speed;
+      this.direction = "left";
     }
 
-    // Física
+    if (input.right) {
+      this.x += this.speed;
+      this.direction = "right";
+    }
+
+    // Limite da tela
+    this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
+
+    /* ================= PULO ================= */
+    if (input.jump && this.onGround) {
+      this.vy = this.jumpForce;
+      this.onGround = false;
+    }
+
+    /* ================= GRAVIDADE ================= */
     this.vy += this.gravity;
-    this.x += this.vx;
     this.y += this.vy;
-
-    // Limites laterais
-    if (this.x < 0) this.x = 0;
-    if (this.x + this.width > canvas.width) {
-      this.x = canvas.width - this.width;
-    }
-
-    // Animação
-    if (!this.onGround) {
-      this.currentSprite = this.spriteJump;
-    } else if (this.vx !== 0) {
-      this.currentSprite = this.spriteWalk;
-    } else {
-      this.currentSprite = this.spriteIdle;
-    }
   }
 
   draw(ctx) {
-    ctx.drawImage(
-      this.currentSprite,
-      this.x,
-      this.y,
-      this.width,
-      this.height
-    );
+    ctx.save();
+
+    // 🔄 Inverte o sprite quando anda para a esquerda
+    if (this.direction === "left") {
+      ctx.translate(this.x + this.width / 2, 0);
+      ctx.scale(-1, 1);
+      ctx.translate(-(this.x + this.width / 2), 0);
+    }
+
+    // 🧍 Desenho do personagem (placeholder)
+    ctx.fillStyle = "#ffccaa";
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+
+    ctx.restore();
+
+    /* 🔍 DEBUG (opcional): desenhar hitbox
+    const b = this.bounds;
+    ctx.strokeStyle = "red";
+    ctx.strokeRect(b.x, b.y, b.width, b.height);
+    */
   }
 }
