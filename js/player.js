@@ -16,6 +16,9 @@ class Player {
     this.onGround = false;
     this.canDoubleJump = true;
 
+    // 🔁 direção do personagem
+    this.facingRight = true;
+
     this.spriteIdle = new Image();
     this.spriteWalk = new Image();
     this.spriteJump = new Image();
@@ -30,8 +33,16 @@ class Player {
   update(input, canvas) {
     // Movimento horizontal
     this.vx = 0;
-    if (input.left) this.vx = -this.speed;
-    if (input.right) this.vx = this.speed;
+
+    if (input.left) {
+      this.vx = -this.speed;
+      this.facingRight = false; // 👈 vira para esquerda
+    }
+
+    if (input.right) {
+      this.vx = this.speed;
+      this.facingRight = true; // 👉 vira para direita
+    }
 
     // Pulo
     if (input.jump) {
@@ -68,12 +79,28 @@ class Player {
   }
 
   draw(ctx) {
-    ctx.drawImage(
-      this.currentSprite,
-      this.x,
-      this.y,
-      this.width,
-      this.height
-    );
+    ctx.save();
+
+    if (!this.facingRight) {
+      // 🔁 espelha horizontalmente
+      ctx.scale(-1, 1);
+      ctx.drawImage(
+        this.currentSprite,
+        -this.x - this.width,
+        this.y,
+        this.width,
+        this.height
+      );
+    } else {
+      ctx.drawImage(
+        this.currentSprite,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
+    }
+
+    ctx.restore();
   }
 }
