@@ -1,14 +1,12 @@
 class Player {
   constructor(x, y) {
-    // Posição real do sprite
     this.x = x;
     this.y = y;
 
-    // Tamanho do sprite
     this.width = 40;
     this.height = 48;
 
-    // 🔧 HITBOX (menor que o sprite)
+    // 🔧 HITBOX
     this.hitbox = {
       offsetX: 8,
       offsetY: 6,
@@ -23,11 +21,23 @@ class Player {
     this.gravity = 0.6;
     this.onGround = false;
 
-    // Direção do personagem
+    // Direção
     this.direction = "right"; // right | left
+
+    // Estados
+    this.state = "idle"; // idle | walk | jump
+
+    // 🖼️ Sprites
+    this.spriteIdle = new Image();
+    this.spriteIdle.src = "anny.png";
+
+    this.spriteWalk = new Image();
+    this.spriteWalk.src = "anny2.png";
+
+    this.spriteJump = new Image();
+    this.spriteJump.src = "anny3.png";
   }
 
-  // Retorna a hitbox real no mundo
   get bounds() {
     return {
       x: this.x + this.hitbox.offsetX,
@@ -38,18 +48,21 @@ class Player {
   }
 
   update(input, canvas) {
+    let moving = false;
+
     /* ================= MOVIMENTO HORIZONTAL ================= */
     if (input.left) {
       this.x -= this.speed;
       this.direction = "left";
+      moving = true;
     }
 
     if (input.right) {
       this.x += this.speed;
       this.direction = "right";
+      moving = true;
     }
 
-    // Limite da tela
     this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
 
     /* ================= PULO ================= */
@@ -61,16 +74,47 @@ class Player {
     /* ================= GRAVIDADE ================= */
     this.vy += this.gravity;
     this.y += this.vy;
+
+    /* ================= ESTADO ================= */
+    if (!this.onGround) {
+      this.state = "jump";
+    } else if (moving) {
+      this.state = "walk";
+    } else {
+      this.state = "idle";
+    }
   }
 
   draw(ctx) {
+    let sprite;
+
+    switch (this.state) {
+      case "walk":
+        sprite = this.spriteWalk;
+        break;
+      case "jump":
+        sprite = this.spriteJump;
+        break;
+      default:
+        sprite = this.spriteIdle;
+    }
+
     ctx.save();
 
-    // 🔄 Inverte o sprite quando anda para a esquerda
     if (this.direction === "left") {
-      ctx.translate(this.x + this.width / 2, 0);
+      ctx.translate(this.x + this.width, this.y);
       ctx.scale(-1, 1);
-      ctx.translate(-(this.x + this.width / 2), 0);
+      ctx.drawImage(sprite, 0, 0, this.width, this.height);
+    } else {
+      ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
     }
+
+    ctx.restore();
+
+    /* 🔍 DEBUG HITBOX (opcional)
+    const b = this.bounds;
+    ctx.strokeStyle = "red";
+    ctx.strokeRect(b.x, b.y, b.width, b.height);
+    */
   }
 }
