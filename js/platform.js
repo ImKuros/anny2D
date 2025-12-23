@@ -17,12 +17,20 @@ class Platform {
 
   // Mantém o player fixo na plataforma base
   anchorPlayer(player) {
-    if (!this.isBase) return;
+  if (!this.isBase) return;
 
-    player.onGround = true;
-    player.vy = 0;
-    player.y = this.y - player.height;
-  }
+  const isOnTop =
+    player.x + player.width > this.x &&
+    player.x < this.x + this.width &&
+    player.y + player.height <= this.y + 5 &&
+    player.y + player.height + player.vy >= this.y;
+
+  if (!isOnTop) return;
+
+  player.onGround = true;
+  player.vy = 0;
+  player.y = this.y - player.height;
+}
 
   draw(ctx) {
     if (this.isFinish) {
