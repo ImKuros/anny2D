@@ -12,9 +12,10 @@ class Platform {
     this.width = width;
     this.height = height;
     this.isFinish = isFinish;
-    this.isBase = isBase; // ← PRIMEIRA PLATAFORMA
+    this.isBase = isBase;
   }
 
+  // Mantém o player fixo na plataforma base
   anchorPlayer(player) {
     if (!this.isBase) return;
 
@@ -24,7 +25,14 @@ class Platform {
   }
 
   draw(ctx) {
-    ctx.fillStyle = this.isFinish ? "#00ff00" : "#492908ff";
+    if (this.isFinish) {
+      ctx.fillStyle = "#00ff00"; // linha de chegada
+    } else if (this.isBase) {
+      ctx.fillStyle = "#8B4513"; // plataforma inicial
+    } else {
+      ctx.fillStyle = "#654321"; // plataformas normais
+    }
+
     ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 }
