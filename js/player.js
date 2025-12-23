@@ -3,118 +3,77 @@ class Player {
     this.x = x;
     this.y = y;
 
-    this.width = 40;
-    this.height = 48;
+    this.width = 42;
+    this.height = 42;
 
-    // 🔧 HITBOX
-    this.hitbox = {
-      offsetX: 8,
-      offsetY: 6,
-      width: 24,
-      height: 42
-    };
-
-    // Física
+    this.vx = 0;
     this.vy = 0;
+
     this.speed = 3.5;
-    this.jumpForce = -12;
+    this.jumpForce = 13;
     this.gravity = 0.6;
+
     this.onGround = false;
+    this.canDoubleJump = true;
 
-    // Direção
-    this.direction = "right"; // right | left
-
-    // Estados
-    this.state = "idle"; // idle | walk | jump
-
-    // 🖼️ Sprites
     this.spriteIdle = new Image();
-    this.spriteIdle.src = "anny.png";
-
     this.spriteWalk = new Image();
-    this.spriteWalk.src = "anny2.png";
-
     this.spriteJump = new Image();
-    this.spriteJump.src = "anny3.png";
-  }
 
-  get bounds() {
-    return {
-      x: this.x + this.hitbox.offsetX,
-      y: this.y + this.hitbox.offsetY,
-      width: this.hitbox.width,
-      height: this.hitbox.height
-    };
+    this.spriteIdle.src = "assets/anny.png";
+    this.spriteWalk.src = "assets/anny2.png";
+    this.spriteJump.src = "assets/anny3.png";
+
+    this.currentSprite = this.spriteIdle;
   }
 
   update(input, canvas) {
-    let moving = false;
+    // Movimento horizontal
+    this.vx = 0;
+    if (input.left) this.vx = -this.speed;
+    if (input.right) this.vx = this.speed;
 
-    /* ================= MOVIMENTO HORIZONTAL ================= */
-    if (input.left) {
-      this.x -= this.speed;
-      this.direction = "left";
-      moving = true;
+    // Pulo
+    if (input.jump) {
+      if (this.onGround) {
+        this.vy = -this.jumpForce;
+        this.onGround = false;
+        this.canDoubleJump = true;
+      } else if (this.canDoubleJump) {
+        this.vy = -this.jumpForce;
+        this.canDoubleJump = false;
+      }
+      input.jump = false;
     }
 
-    if (input.right) {
-      this.x += this.speed;
-      this.direction = "right";
-      moving = true;
-    }
-
-    this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
-
-    /* ================= PULO ================= */
-    if (input.jump && this.onGround) {
-      this.vy = this.jumpForce;
-      this.onGround = false;
-    }
-
-    /* ================= GRAVIDADE ================= */
+    // Física
     this.vy += this.gravity;
+    this.x += this.vx;
     this.y += this.vy;
 
-    /* ================= ESTADO ================= */
+    // Limites laterais
+    if (this.x < 0) this.x = 0;
+    if (this.x + this.width > canvas.width) {
+      this.x = canvas.width - this.width;
+    }
+
+    // Animação
     if (!this.onGround) {
-      this.state = "jump";
-    } else if (moving) {
-      this.state = "walk";
+      this.currentSprite = this.spriteJump;
+    } else if (this.vx !== 0) {
+      this.currentSprite = this.spriteWalk;
     } else {
-      this.state = "idle";
+      this.currentSprite = this.spriteIdle;
     }
   }
 
   draw(ctx) {
-    let sprite;
-
-    switch (this.state) {
-      case "walk":
-        sprite = this.spriteWalk;
-        break;
-      case "jump":
-        sprite = this.spriteJump;
-        break;
-      default:
-        sprite = this.spriteIdle;
-    }
-
-    ctx.save();
-
-    if (this.direction === "left") {
-      ctx.translate(this.x + this.width, this.y);
-      ctx.scale(-1, 1);
-      ctx.drawImage(sprite, 0, 0, this.width, this.height);
-    } else {
-      ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
-    }
-
-    ctx.restore();
-
-    /* 🔍 DEBUG HITBOX (opcional)
-    const b = this.bounds;
-    ctx.strokeStyle = "red";
-    ctx.strokeRect(b.x, b.y, b.width, b.height);
-    */
+    ctx.drawImage(
+      this.currentSprite,
+      this.x,
+      this.y,
+      this.width,
+      this.height
+    );
   }
 }
